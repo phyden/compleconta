@@ -44,16 +44,16 @@ class FileIO:
 
     def __init__(self, output_filename="output_file.tsv"):
 
-	#set the environment:
-	self.proj_dir=os.path.dirname(__file__)
-	
-	self.data_dir=self.proj_dir+"/../data"
+    #set the environment:
+        self.proj_dir=os.path.dirname(__file__)
+
+        self.data_dir=self.proj_dir+"/../data"
 
         self.universal_cogs_file=self.data_dir+"/curated_34_enogs.txt"
-	self.sorted_enogs_file=self.data_dir+"/sc_mc_counts_sorted_sc_short.tsv"
-	
-	## functions ##
-	
+        self.sorted_enogs_file=self.data_dir+"/sc_mc_counts_sorted_sc_short.tsv"
+
+    ## functions ##
+
     def read_enog_list(self, inputfname, header):
     
         # get sorted list of ENOGs ignoring header or without header

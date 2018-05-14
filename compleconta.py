@@ -1,4 +1,4 @@
-#!/usr/env python
+#!/usr/bin/env python
 
 import os, sys
 from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check
