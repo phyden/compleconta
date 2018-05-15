@@ -18,7 +18,8 @@ log = logging.getLogger(os.path.basename(__file__))
 #
 #Copyright (c) 2016 François ALLAIN
 
-#copied and modified by Patrick HYDEN:
+#modified by Patrick HYDEN:
+# - minor changes
 # - added LCA function
 
 def flatten(seq):
