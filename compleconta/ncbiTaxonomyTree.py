@@ -319,6 +319,8 @@ class NcbiTaxonomyTree(object):
 
         all_paths=[]
         max_len=0
+
+        taxids=flatten(taxids)
         for taxid in taxids:
             taxid=int(taxid)
             path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
