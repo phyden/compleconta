@@ -39,7 +39,7 @@ taxonomy_dir=data_dir+"/taxonomy"
 
 tree=ncbiTaxonomyTree.NcbiTaxonomyTree(taxonomy_dir)
 
-lca_taxid, lca_name, lca_rank=tree.getLCA(taxid_list,rank=0,majority_threshold=0.9) #standard rank used: 0 (species), majority threshold 0.9
+lca_taxid, lca_name, lca_rank=tree.getLCA(taxid_list,rank=1,majority_threshold=0.9) #standard ranks: 0 (species), 1 (genus), ..., majority threshold 0.9
 
 
 #result is a tuple containing (completeness(fraction), contamination(fraction))
