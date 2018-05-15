@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
-from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check
+from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check, MarkerGeneBlast, ncbiTaxonomyTree
 
 # usage: compleconta.py /path/to/protein_file.faa /path/to/hmmer_results.faa.out
 
@@ -29,6 +29,19 @@ gc_subset=gc.subset(curated34_list)
 aai=aminoAcidIdentity.aai_check(0.9,gc_subset)
 result=Check.check_genome_cc_weighted(marker_set,gc.get_profile())
 
+data_dir=IOobj.get_data_dir()
+
+database_dir=data_dir+"/databases"
+
+taxid_list=MarkerGeneBlast.getTaxidsFromSequences(database_dir,gc_subset)
+
+taxonomy_dir=data_dir+"/taxonomy"
+
+tree=ncbiTaxonomyTree.NcbiTaxonomyTree(taxonomy_dir)
+
+lca_taxid, lca_name, lca_rank=tree.getLCA(taxid_list,rank=0,majority_threshold=0.9) #standard rank used: 0 (species), majority threshold 0.9
+
+
 #result is a tuple containing (completeness(fraction), contamination(fraction))
-print("Comp.\tCont.\tSt. Het.\n%.4f\t%.4f\t%.4f" %(float(result[0]),float(result[1]), aai))
+print("Comp.\tCont.\tSt. Het.\tncbi_taxid\ttaxon_name\ttaxon_rank\n%.4f\t%.4f\t%.4f\t%i\t%s\t%s" %(float(result[0]),float(result[1]), aai, lca_taxid, lca_name, lca_rank))
 
