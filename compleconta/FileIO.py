@@ -54,6 +54,9 @@ class FileIO:
 
     ## functions ##
 
+    def get_data_dir(self):
+        return self.data_dir
+
     def read_enog_list(self, inputfname, header):
     
         # get sorted list of ENOGs ignoring header or without header
