@@ -11,21 +11,24 @@ def prepareFiles(gc,enog_list):
     
     outfiles=[]
     inputfiles=[]
+    enogs_used=[]
 
     for enog in enog_list:
-        #with open(tempfile_input,"w") as tmpfile_handler:
-        tmpfile_handler, tempfile_output = tempfile.mkstemp(dir=tmp_dir)
-        outfiles.append(tempfile_output)
+        seqs = gc.get_sequences_by_enog(enog)
+        for seqid in seqs.keys():
+            
+            tmpfile_handler, tempfile_output = tempfile.mkstemp(dir=tmp_dir)
+            outfiles.append(tempfile_output)
 
-        tmpfile_handler, tempfile_input = tempfile.mkstemp(dir=tmp_dir)
-        inputfiles.append(tempfile_input)
+            tmpfile_handler, tempfile_input = tempfile.mkstemp(dir=tmp_dir)
+            inputfiles.append(tempfile_input)
 
-        with open(tempfile_input,"w") as tmpfile_handler:
-            seqs = gc.get_sequences_by_enog(enog)
-            for seqid in seqs.keys():
+            enogs_used.append(enog)
+
+            with open(tempfile_input,"w") as tmpfile_handler:
                 tmpfile_handler.write(">%s\n%s\n" % (seqid, seqs[seqid]))
 
-    return tmp_dir, outfiles, inputfiles
+    return tmp_dir, outfiles, inputfiles, enogs_used
 
 
 def runBlastJob(parameter_set):
@@ -65,7 +68,7 @@ def getTaxidsFromSequences(databasepath,gc):
 
     pool=multiprocessing.Pool(5)
 
-    tmp_dir, outfiles, inputfiles = prepareFiles(gc, enog_list)
+    tmp_dir, outfiles, inputfiles, enog_list = prepareFiles(gc, enog_list)
     
 
     parameter_sets=[]
