@@ -1,7 +1,7 @@
 #!/bin/bash
 
 tmpdir=/tmp/bactNOG
-enog_list=/apps/compleconta/0.1/data/curated_34_enogs.txt
+enog_list=$(pwd)/data/curated_34_enogs.txt
 
 target_dir=$(pwd)/data/databases
 mkdir -p $target_dir $tmpdir
@@ -19,3 +19,5 @@ for enog in $(less $enog_list); do
 	sed -i 's/>245018$/>649756/;s/>439483$/>929558/;s/>469595$/>1639133/;s/>469596$/>100884/;s/>525366$/>1423814/;' $target_dir/$enog".fa"
 	makeblastdb -in $target_dir/$enog".fa" -dbtype prot 
 done
+
+rm -r $tmpdir
