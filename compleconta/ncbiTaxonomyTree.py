@@ -320,17 +320,21 @@ class NcbiTaxonomyTree(object):
         all_paths=[]
         max_len=0
 
-        taxids=flatten(taxids)
-        for taxid in taxids:
-            taxid=int(taxid)
-            path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
-            path_as_list=[]
-            for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
-                path_as_list.append(int(node.taxid))
-                if node.rank==selected_rank:
-                    break
-            all_paths.append(path_as_list)
-            max_len=max(len(path_as_list),max_len)
+        #taxids=flatten(taxids)
+        for result in taxids:
+            this_result_paths=[]
+            #result is now a list containing taxids as result for a single sequence
+            for taxid in result:
+                taxid=int(taxid)
+                path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
+                path_as_list=[]
+                for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
+                    path_as_list.append(int(node.taxid))
+                    if node.rank==selected_rank:
+                        break
+                this_result_paths.append(path_as_list)
+                max_len=max(len(path_as_list),max_len)
+            all_paths.append(this_result_paths)
 
         stop=False
         lca=all_paths[0][-1]
@@ -339,16 +343,19 @@ class NcbiTaxonomyTree(object):
                 break
 
             tmp_dict={}
-            size=0
-            for j in range(0,len(all_paths)):
+            size=len(all_paths)
+            for j in range(0,size):
                 if stop==True:
                     break
 
-                try:
-                    tmp_dict[all_paths[j][i]]=tmp_dict.get(all_paths[j][i],0)+1
-                    size=size+1
-                except IndexError:
-                    print("WARNING: not all paths equally long")
+                num_of_hits=len(all_paths[j])
+                for k in range(0,num_of_hits):
+                    
+                    try:
+                        tmp_dict[all_paths[j][k][i]]=tmp_dict.get(all_paths[j][k][i],0)+float(1)/num_of_hits
+                    except IndexError:
+                        #print("WARNING: not all paths equally long")
+                        pass
             
             m_index=max(tmp_dict, key=tmp_dict.get)
             m_frac=float(tmp_dict[m_index])/size
