@@ -4,6 +4,7 @@ PATH_TO_BACTNOG_DB=/mirror/eggnog/eggnog_4.5/data/bactNOG/bactNOG.raw_algs.tar.g
 
 TMPDIR=/tmp/bactNOG
 ENOG_LIST=$(pwd)/data/curated_34_enogs.txt
+TAXID_LIST=$(pwd)/data/tax_ids_used.txt
 
 TARGET_DIR=$(pwd)/data/databases
 mkdir -p ${TARGET_DIR} $TMPDIR
@@ -33,5 +34,9 @@ for ENOG in $(less ${ENOG_LIST}); do
 	fi
 	makeblastdb -in ${TARGET_DIR}/$ENOG".fa" -dbtype prot 
 done
+
+if ! [ -f ${TAXID_LIST} ]; then
+	grep -o "[0-9][0-9]*" ${TARGET_DIR}/*".fa" | cut -f2 -d":" | sort | uniq > ${TAXID_LIST}
+fi
 
 rm -r $TMPDIR
