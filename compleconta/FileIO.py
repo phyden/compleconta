@@ -13,7 +13,7 @@ def load_sequences(protein_file):
     if os.path.isfile(protein_file):
         with open(protein_file) as infile:
             for record in SeqIO.parse(infile,"fasta"):
-                seq_return[record.id]=record.seq
+                seq_return[record.id]=str(record.seq)
 
     return seq_return
 
