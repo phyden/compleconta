@@ -1,29 +1,20 @@
 #!/usr/bin/env python
 
 import sys, os
+from Bio import SeqIO
 #import numpy as np
 #import numpy.random as random
 
 def load_sequences(protein_file):
 
-    sequences={}
+    seq_return={}
 
 
     if os.path.isfile(protein_file):
         with open(protein_file) as infile:
-            for line in infile:
-                line=line.strip()
-                if line[0]==">":
-                    header=line.split(" ")[0][1:]
-                else:
-                    if not sequences.get(header):
-                        sequences[header]=[]
-                    sequences[header].append(line)
-    seq_return={}
+            for record in SeqIO.parse(infile,"fasta"):
+                seq_return[record.id]=record.seq
 
-    for header in sequences.keys():
-        seq_return[header]="".join(sequences[header])
-    
     return seq_return
 
 
