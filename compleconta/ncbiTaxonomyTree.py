@@ -355,6 +355,9 @@ class NcbiTaxonomyTree(object):
             m_frac=float(tmp_dict[m_index])/size
             if m_frac >= majority_threshold:
                 lca=m_index
+
+	if lca==2: #so far only bacteria are in database. if superkingdom == bacteria, we can not exclude it is something different (e.g. archaea)
+	    lca=1
                 
         return lca, self.dic[lca].name, self.dic[lca].rank
         
