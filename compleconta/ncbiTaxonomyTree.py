@@ -312,7 +312,7 @@ class NcbiTaxonomyTree(object):
 
 
     def getLCA(self, taxids, rank=1, majority_threshold=0.9):
-        """ First attempt to get LCA """
+        """ Function to get LCA, recursive if taxids is a list of lists """
         
         rank=min(abs(rank),len(self.standard_ranks))
         selected_rank=self.standard_ranks[rank]
@@ -320,53 +320,40 @@ class NcbiTaxonomyTree(object):
         all_paths=[]
         max_len=0
 
-        #taxids=flatten(taxids)
         for result in taxids:
             this_result_paths=[]
             #result is now a list containing taxids as result for a single sequence
-            for taxid in result:
-                taxid=int(taxid)
-                path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
-                path_as_list=[]
-                for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
-                    path_as_list.append(int(node.taxid))
-                    if node.rank==selected_rank:
-                        break
-                this_result_paths.append(path_as_list)
-                max_len=max(len(path_as_list),max_len)
-            all_paths.append(this_result_paths)
+            if type(result) is list and len(result) > 1:
+                taxid, name, rank = self.getLCA(result)
+            elif type(result) is list:
+   		taxid=int(result[0])
+	    else:
+		taxid=int(result)
+            path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
+            path_as_list=[]
+            for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
+                path_as_list.append(int(node.taxid))
+                if node.rank==selected_rank:
+                    break
+            max_len=max(len(path_as_list),max_len)
+            all_paths.append(path_as_list)
 
-        stop=False
-        lca=all_paths[0][-1]
+        lca=1 #if no taxid is provided --> root
         for i in range(0,max_len):
-            if stop==True:
-                break
-
             tmp_dict={}
             size=len(all_paths)
             for j in range(0,size):
-                if stop==True:
-                    break
-
-                num_of_hits=len(all_paths[j])
-                for k in range(0,num_of_hits):
-                    
-                    try:
-                        tmp_dict[all_paths[j][k][i]]=tmp_dict.get(all_paths[j][k][i],0)+float(1)/num_of_hits
-                    except IndexError:
-                        #print("WARNING: not all paths equally long")
-                        pass
+                try:
+                    tmp_dict[all_paths[j][i]]=tmp_dict.get(all_paths[j][i],0)+1
+                except IndexError:
+                    #print("WARNING: not all paths equally long")
+                    pass
             
             m_index=max(tmp_dict, key=tmp_dict.get)
             m_frac=float(tmp_dict[m_index])/size
             if m_frac >= majority_threshold:
                 lca=m_index
                 
-                
-                #if not all_paths[j][i]==all_paths[j-1][i]:
-                #    lca=all_paths[j][i-1]
-                #    stop=True
-            
         return lca, self.dic[lca].name, self.dic[lca].rank
         
 

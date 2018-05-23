@@ -52,11 +52,12 @@ def readOutput(outputfile):
             hit=fields[1]
             pident=float(fields[2])
             maxscore=max(maxscore,pident)
-            if pident < maxscore:
+            if pident < maxscore*0.9:
                 break
             else:
                 tophit.append(hit)
-
+        if len(tophit)==0:
+            tophit.append(str(1))
     return tophit
 
 
