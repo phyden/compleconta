@@ -332,6 +332,8 @@ class NcbiTaxonomyTree(object):
             path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
             path_as_list=[]
             for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
+		if not selected_rank == "species" and node.rank=="species": 	#some taxons apparently leave out other standard_ranks and jump forward to species, so in rare cases species level could be
+		    break							#reported although they are not selected.
                 path_as_list.append(int(node.taxid))
                 if node.rank==selected_rank:
                     break
