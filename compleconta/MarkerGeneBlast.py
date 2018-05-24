@@ -53,8 +53,9 @@ def readOutput(outputfile):
             fields=line.strip().split("\t")
             hit=fields[1]
             pident=float(fields[2])
-            maxscore=max(maxscore,pident)
-            if pident < maxscore*0.9:
+	    bitscore=float(fields[11])
+            maxscore=max(maxscore,bitscore)
+            if bitscore < maxscore*0.9:
                 break
             else:
                 tophit.append(hit)

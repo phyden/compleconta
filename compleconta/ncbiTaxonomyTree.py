@@ -346,11 +346,13 @@ class NcbiTaxonomyTree(object):
 	Node = namedtuple('Node', ['taxid', 'rank', 'name'])
 	root_node=Node(taxid=1, rank='no rank', name='root')
         lca=root_node #if no taxid is provided --> root
+
+	max_len=len(self.standard_ranks)-rank
 	return_nodes=[]
 	return_percentages=[]
+        size=len(all_paths)
         for i in range(0,max_len):
             tmp_dict={}
-            size=len(all_paths)
             for j in range(0,size):
                 try:
                     tmp_dict[all_paths[j][i]]=tmp_dict.get(all_paths[j][i],0)+1
@@ -358,7 +360,10 @@ class NcbiTaxonomyTree(object):
                     #print("WARNING: not all paths equally long")
                     pass
             
-            m_node=max(tmp_dict, key=tmp_dict.get)
+	    try:
+            	m_node=max(tmp_dict, key=tmp_dict.get)
+	    except ValueError: #if dict remains empty
+		break
             m_frac=float(tmp_dict[m_node])/size
             if m_frac >= majority_threshold:
                 lca=m_node
