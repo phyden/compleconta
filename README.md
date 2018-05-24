@@ -17,7 +17,7 @@ Positional argument 1 should be the fasta format proteome file, positional argum
 
 ## Output:
 
-The output is written to <stdout> and provides Completeness, Contamination, Strain Heterogeneity (all in fractions), ncbi taxon ID, taxon name and taxon rank. Tab separated with header:
+The output is written to `<stdout>` and provides Completeness, Contamination, Strain Heterogeneity (all in fractions), ncbi taxon ID, taxon name and taxon rank. Tab separated with header:
 ```
 Comp.	Cont.	St. Het.	ncbi_taxid	taxon_name	taxon_rank
 1.0000	0.0294	0.0000	85015	Nocardioidaceae	family
@@ -71,4 +71,4 @@ WP_008363336.1	ENOG4105CB9	Bacteria 1.0	Actinobacteria 1.0	Actinobacteria 1.0	Pr
 
 Both the reduced taxonomy files (names.dmp and nodes.dmp) and the databases which were created from the bactNOG raw alignments are located in the data folder. The tool is ready to run, and will create the indices for the database files on the first execution.
 
-If you wish to expand or change to a different database, you need to specify a different set of marker genes. Since the ENOG-ids should be kept for newer versions of EggNOG-DB (whenever it will be released), it might be sufficient to specifiy the paths for the bactNOG alignment tar-ball and the taxonomy dump tar, and run the <prepare_blast_database.sh> script. If you run into troubles please open an issue or contact the author.
+If you wish to expand or change to a different database, you need to specify a different set of marker genes. Since the ENOG-ids should be kept for newer versions of EggNOG-DB (whenever it will be released), it might be sufficient to specifiy the paths for the bactNOG alignment tar-ball and the taxonomy dump tar, and run the `<prepare_blast_database.sh>` script. If you run into troubles please open an issue or contact the author.
