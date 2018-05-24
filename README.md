@@ -5,13 +5,13 @@ This tool was developed for [PhenDB](http://phendb.org/), where it provides a qu
 
 ## Dependencies:
 
-* BioPython
-* MUSCLE Aligner
-* ncbi-blast+
+* [BioPython](https://biopython.org/wiki/Download)
+* [MUSCLE Aligner](https://www.drive5.com/muscle/)
+* [ncbi-blast+](https://blast.ncbi.nlm.nih.gov/Blast.cgi)
 
 ## Usage:
 
-compleconta.py *input.faa* *classification.csv*
+`compleconta.py input.faa classification.csv`
 
 Positional argument 1 should be the fasta format proteome file, positional argument 2 the corresponding classification output as <tab-separated> file where column 1 is the sequence identifier of the fasta file and column 2 the ENOG cluster id to which it was classified. Example files can be found in the example directory.
 
