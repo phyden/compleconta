@@ -12,6 +12,7 @@ def prepareFiles(gc,enog_list):
     outfiles=[]
     inputfiles=[]
     enogs_used=[]
+    seqs_used=[]
 
     for enog in enog_list:
         seqs = gc.get_sequences_by_enog(enog)
@@ -24,11 +25,12 @@ def prepareFiles(gc,enog_list):
             inputfiles.append(tempfile_input)
 
             enogs_used.append(enog)
+	    seqs_used.append(seqid)
 
             with open(tempfile_input,"w") as tmpfile_handler:
                 tmpfile_handler.write(">%s\n%s\n" % (seqid, seqs[seqid]))
 
-    return tmp_dir, outfiles, inputfiles, enogs_used
+    return tmp_dir, outfiles, inputfiles, enogs_used, seqs_used
 
 
 def runBlastJob(parameter_set):
@@ -69,7 +71,7 @@ def getTaxidsFromSequences(databasepath,gc):
 
     pool=multiprocessing.Pool(5)
 
-    tmp_dir, outfiles, inputfiles, enog_list = prepareFiles(gc, enog_list)
+    tmp_dir, outfiles, inputfiles, enog_list, seq_list = prepareFiles(gc, enog_list)
     
 
     parameter_sets=[]
@@ -81,5 +83,5 @@ def getTaxidsFromSequences(databasepath,gc):
 
     os.system("rm -r %s" % tmp_dir)
 
-    return best_hits
+    return best_hits, seq_list, enog_list
  

@@ -27,21 +27,38 @@ gc_subset=gc.subset(curated34_list)
 
 
 aai=aminoAcidIdentity.aai_check(0.9,gc_subset)
-result=Check.check_genome_cc_weighted(marker_set,gc.get_profile())
+completeness, contamination=Check.check_genome_cc_weighted(marker_set,gc.get_profile())
 
 data_dir=IOobj.get_data_dir()
 
 database_dir=data_dir+"/databases"
 
-taxid_list=MarkerGeneBlast.getTaxidsFromSequences(database_dir,gc_subset)
+taxid_list, sequence_ids, enog_names=MarkerGeneBlast.getTaxidsFromSequences(database_dir,gc_subset)
 
 taxonomy_dir=data_dir+"/taxonomy"
 
 tree=ncbiTaxonomyTree.NcbiTaxonomyTree(taxonomy_dir)
 
-lca_taxid, lca_name, lca_rank=tree.getLCA(taxid_list,rank=1,majority_threshold=0.9) #standard ranks: 0 (species), 1 (genus), ..., majority threshold 0.9
+lca_per_sequence=[]
+nodes_per_sequence=[]
+percentages_per_sequence=[]
+for sub_taxids in taxid_list:
+	reported_lca, nodes, percentages=tree.getLCA(sub_taxids,rank=1,majority_threshold=0.9)
+	lca_per_sequence.append(reported_lca.taxid)
+	nodes_per_sequence.append(nodes)
+	percentages_per_sequence.append(percentages)
+		
+
+reported_lca, nodes, percentages=tree.getLCA(lca_per_sequence,rank=1,majority_threshold=0.9) #standard ranks: 0 (species), 1 (genus), ..., majority threshold 0.9
 
 
 #result is a tuple containing (completeness(fraction), contamination(fraction))
-print("Comp.\tCont.\tSt. Het.\tncbi_taxid\ttaxon_name\ttaxon_rank\n%.4f\t%.4f\t%.4f\t%i\t%s\t%s" %(float(result[0]),float(result[1]), aai, lca_taxid, lca_name, lca_rank))
+print("Comp.\tCont.\tSt. Het.\tncbi_taxid\ttaxon_name\ttaxon_rank\n%.4f\t%.4f\t%.4f\t%i\t%s\t%s" %(float(completeness),float(contamination), aai, reported_lca.taxid, reported_lca.name, reported_lca.rank))
 
+print("\nLCA path and percentage of marker genes assignment:")
+print("%s" % "\t".join([nodes[i].name+" "+str(round(percentages[i],2)) for i in range(len(nodes))]))
+
+print("\nLCA per sequence of identified marker genes:")
+for i in range(len(sequence_ids)):
+	taxonomy="\t".join([nodes_per_sequence[i][j].name+" "+str(round(percentages_per_sequence[i][j],2)) for j in range(len(nodes_per_sequence[i]))])
+	print("%s\t%s\t%s"%(sequence_ids[i],enog_names[i],taxonomy))

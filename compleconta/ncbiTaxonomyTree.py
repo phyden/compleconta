@@ -322,9 +322,12 @@ class NcbiTaxonomyTree(object):
 
         for result in taxids:
             this_result_paths=[]
-            #result is now a list containing taxids as result for a single sequence
+
+            #result is might be a list containing taxids as result for a single sequence, deprecated - not used currently
             if type(result) is list and len(result) > 1:
+                print(result)
                 taxid, name, rank = self.getLCA(result)
+                print(taxid, name, rank)
             elif type(result) is list:
    		taxid=int(result[0])
 	    else:
@@ -334,13 +337,17 @@ class NcbiTaxonomyTree(object):
             for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
 		if not selected_rank == "species" and node.rank=="species": 	#some taxons apparently leave out other standard_ranks and jump forward to species, so in rare cases species level could be
 		    break							#reported although they are not selected.
-                path_as_list.append(int(node.taxid))
+                path_as_list.append(node)
                 if node.rank==selected_rank:
                     break
             max_len=max(len(path_as_list),max_len)
             all_paths.append(path_as_list)
 
-        lca=1 #if no taxid is provided --> root
+	Node = namedtuple('Node', ['taxid', 'rank', 'name'])
+	root_node=Node(taxid=1, rank='no rank', name='root')
+        lca=root_node #if no taxid is provided --> root
+	return_nodes=[]
+	return_percentages=[]
         for i in range(0,max_len):
             tmp_dict={}
             size=len(all_paths)
@@ -351,15 +358,17 @@ class NcbiTaxonomyTree(object):
                     #print("WARNING: not all paths equally long")
                     pass
             
-            m_index=max(tmp_dict, key=tmp_dict.get)
-            m_frac=float(tmp_dict[m_index])/size
+            m_node=max(tmp_dict, key=tmp_dict.get)
+            m_frac=float(tmp_dict[m_node])/size
             if m_frac >= majority_threshold:
-                lca=m_index
+                lca=m_node
+	    return_nodes.append(m_node)
+	    return_percentages.append(m_frac)
 
-	if lca==2: #so far only bacteria are in database. if superkingdom == bacteria, we can not exclude it is something different (e.g. archaea)
-	    lca=1
+	if lca.taxid==2: #so far only bacteria are in database. if superkingdom == bacteria, we can not exclude it is something different (e.g. archaea)
+	    lca=root_node
                 
-        return lca, self.dic[lca].name, self.dic[lca].rank
+        return lca, return_nodes, return_percentages
         
 
 if __name__ == "__main__":
