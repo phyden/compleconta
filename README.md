@@ -5,9 +5,9 @@ This tool was developed for [PhenDB](http://phendb.org/), where it provides a qu
 
 ## Dependencies:
 
-* [BioPython](https://biopython.org/wiki/Download)
-* [MUSCLE Aligner](https://www.drive5.com/muscle/)
-* [ncbi-blast+](https://blast.ncbi.nlm.nih.gov/Blast.cgi)
+* [BioPython](https://biopython.org/wiki/Download) tested with v1.71
+* [MUSCLE Aligner](https://www.drive5.com/muscle/) tested with v3.8.31
+* [ncbi-blast+](https://blast.ncbi.nlm.nih.gov/Blast.cgi) v2.3.0 or higher
 
 ## Usage:
 
@@ -69,6 +69,6 @@ WP_008363336.1	ENOG4105CB9	Bacteria 1.0	Actinobacteria 1.0	Actinobacteria 1.0	Pr
 
 ## Setup:
 
-Both the reduced taxonomy files (names.dmp and nodes.dmp) and the databases which were created from the bactNOG raw alignments are located in the data folder. The tool is ready to run, and will create the indices for the database files on the first execution.
+Both the reduced taxonomy files (names.dmp and nodes.dmp) and the databases which were created from the bactNOG raw alignments are located in the data folder. The tool is ready to run, and will create the indices for the database files on execution if non existent. The indexing will also be done when `prepare_blast_database.sh` is run.
 
 If you wish to expand or change to a different database, you need to specify a different set of marker genes. Since the ENOG-ids should be kept for newer versions of EggNOG-DB (whenever it will be released), it might be sufficient to specifiy the paths for the bactNOG alignment tar-ball and the taxonomy dump tar, and run the `prepare_blast_database.sh` script. If you run into troubles please open an issue or contact the author.
