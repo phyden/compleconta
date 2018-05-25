@@ -24,12 +24,6 @@ import os
 import sys
 import subprocess
 from Bio import AlignIO
-#import logging
-#from collections import defaultdict
-
-#from checkm.defaultValues import DefaultValues
-#from checkm.common import getBinIdsFromOutDir
-#from compleconta.seqUtilsCheckM import readFasta
 
 def make_alignments(sequences):
 
@@ -39,15 +33,9 @@ def make_alignments(sequences):
         tmpfasta.append(sequences[header])
 
     child=subprocess.Popen("muscle",stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,shell=False)
-    #align,trash=child.communicate("\n".join(tmpfasta))
     child.stdin.write("\n".join(tmpfasta))
     child.stdin.close()
     alignment = AlignIO.read(child.stdout, "fasta")
-
-    #print(str(alignment[0].seq))
-
-    #lines=alignment.split("\n")
-    #print(lines[1],lines[4])
 
     return str(alignment[0].seq), str(alignment[1].seq)
 
