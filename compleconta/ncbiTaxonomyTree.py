@@ -312,7 +312,7 @@ class NcbiTaxonomyTree(object):
 
 
     def getLCA(self, taxids, rank=1, majority_threshold=0.9):
-        """ Function to get LCA, recursive if taxids is a list of lists """
+        """ Function to get LCA to a lowest possible rank as specified with a majority rule threshold as specified - the complete path down to lowest rank is still processed """
         
         rank=min(abs(rank),len(self.standard_ranks))
         selected_rank=self.standard_ranks[rank]
@@ -323,15 +323,17 @@ class NcbiTaxonomyTree(object):
         for result in taxids:
             this_result_paths=[]
 
-            #result is might be a list containing taxids as result for a single sequence, deprecated - not used currently
-            if type(result) is list and len(result) > 1:
-                print(result)
-                taxid, name, rank = self.getLCA(result)
-                print(taxid, name, rank)
-            elif type(result) is list:
-   		taxid=int(result[0])
-	    else:
-		taxid=int(result)
+            #result is might be a list containing taxids as result for a single sequence, deprecated - not used. current input: taxids is a list, result is a string(?)
+            #if type(result) is list and len(result) > 1:
+            #    print(result)
+            #    taxid, name, rank = self.getLCA(result)
+            #    print(taxid, name, rank)
+            #elif type(result) is list:
+   	    #	taxid=int(result[0])
+	    #else:
+	    #	taxid=int(result)
+            taxid=int(result)
+
             path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
             path_as_list=[]
             for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
@@ -386,10 +388,6 @@ if __name__ == "__main__":
     formatter2 = logging.Formatter('%(asctime)s %(levelname)-8s l.%(lineno)-3d : %(message)s')
     steam_handler.setFormatter(formatter2)
     log.addHandler(steam_handler)
-    # file_handler = logging.FileHandler(os.path.dirname(mgffilename_in) + os.sep + os.path.basename(mgffilename_in) + ".log", mode='wb', encoding=None, delay=0)
-    # file_handler.setLevel(logging.DEBUG)
-    # file_handler.setFormatter(formatter)
-    # log.addHandler(file_handler)
 
     import tarfile
     with tarfile.open("names+nodes_test.tar.gz", 'r:gz') as tfile:
