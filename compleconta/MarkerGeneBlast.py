@@ -1,6 +1,6 @@
 #!/usr/env python
 
-import sys, os, tempfile
+import sys, os, tempfile, subprocess
 import multiprocessing
 
 import Annotation
@@ -42,7 +42,8 @@ def runBlastJob(parameter_set):
     database, inputfile, outputfile, margin = parameter_set
 
     if check_database(database) == 0:
-        os.system("blastp -db %s -query %s -out %s -outfmt '6'" % parameter_set[:3])
+        #os.system("blastp -db %s -query %s -out %s -outfmt '6'" % parameter_set[:3])
+        subprocess.call(["blastp", "-db", database, "-query", inputfile, "-out", outputfile, "-outfmt", "6"])
         best_hit = readOutput(outputfile, margin)
         return best_hit
 
@@ -79,7 +80,8 @@ def check_database(database):
 
     if recreate==True:
         sys.stderr.write("Info: database indices will be created for %s\n" % database)
-        os.system("makeblastdb -in %s -dbtype prot" % database)
+        #os.system("makeblastdb -in %s -dbtype prot" % database)
+        subprocess.call("makeblastdb", "-in", database, "-dbtype", "prot")
     
     return 0
 
