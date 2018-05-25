@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import sys, subprocess
 from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check, MarkerGeneBlast, ncbiTaxonomyTree
 
 import argparse
@@ -25,12 +25,18 @@ parser.add_argument('--threads', dest='n_blastp_threads', type=int, default=5,
                     help='Taxonomy: number of parallel blastp jobs run')
 
 
-
 args = parser.parse_args()
 
 # usage: compleconta.py /path/to/protein_file.faa /path/to/hmmer_results.faa.out
 
-
+required_executables=["blastp","makeblastdb","muscle"]
+for requirement in required_executables:
+    try:
+        status=subprocess.check_output([requirement,"-version"])
+    except OSError:
+        sys.stderr.write("Error: executable '%s' not found in PATH\nAborting\n" % requirement)
+        exit(1)
+        
 
 protein_file=args.protein_file
 hmmer_file=args.hmmer_file
