@@ -3,10 +3,37 @@
 import os, sys
 from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check, MarkerGeneBlast, ncbiTaxonomyTree
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Completeness and Contamination estimation using EggNOG-profiles', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+parser.add_argument('protein_file', metavar='input.faa', type=str,
+                    help='genome proteome file')
+parser.add_argument('hmmer_file', metavar='input.faa.out', type=str,
+                    help='tab separated file with bactNOG classification of proteome input file')
+parser.add_argument('--margin', dest='margin', type=float, default=0.9,
+                    help='Taxonomy: fraction margin for hits taken relative to bitscore of best hit in blastp')
+parser.add_argument('--majority', dest='majority', type=float, default=0.9,
+                    help='Taxonomy: majority threshold for fraction of paths that support the lowest common ancestor')
+parser.add_argument('--rank', dest='rank', type=int, default=1,
+                    help='Taxonomy: lowest standard rank to be reported. 0: species, 1: genus, ... 5: phylum')
+parser.add_argument('--aai', dest='aai', type=float, default=0.9,
+                    help='Contamination: amino acid identity to which the multiple marker genes are considered to be strain heterogenic')
+parser.add_argument('-o', dest='taxonomy_output', type=str, required=False,
+                    help='Taxonomy: file to write additional taxonomic information for each marker gene, if not set, information is omitted')
+parser.add_argument('--threads', dest='n_blastp_threads', type=int, default=5,
+                    help='Taxonomy: number of parallel blastp jobs run')
+
+
+
+args = parser.parse_args()
+
 # usage: compleconta.py /path/to/protein_file.faa /path/to/hmmer_results.faa.out
 
-protein_file=sys.argv[1]
-hmmer_file=sys.argv[2]
+
+
+protein_file=args.protein_file
+hmmer_file=args.hmmer_file
 
 #using the FileIO class from compleconta. the enog lists+enog weights are stored in two files which are also found in compleconta/data
 IOobj=FileIO.FileIO()
@@ -26,14 +53,14 @@ gc.create_from_file(protein_file, hmmer_file)
 gc_subset=gc.subset(curated34_list)
 
 
-aai=aminoAcidIdentity.aai_check(0.9,gc_subset)
+aai=aminoAcidIdentity.aai_check(args.aai,gc_subset)
 completeness, contamination=Check.check_genome_cc_weighted(marker_set,gc.get_profile())
 
 data_dir=IOobj.get_data_dir()
 
 database_dir=data_dir+"/databases"
 
-taxid_list, sequence_ids, enog_names=MarkerGeneBlast.getTaxidsFromSequences(database_dir,gc_subset)
+taxid_list, sequence_ids, enog_names=MarkerGeneBlast.getTaxidsFromSequences(database_dir,gc_subset, args.n_blastp_threads, args.margin)
 
 taxonomy_dir=data_dir+"/taxonomy"
 
@@ -43,22 +70,25 @@ lca_per_sequence=[]
 nodes_per_sequence=[]
 percentages_per_sequence=[]
 for sub_taxids in taxid_list:
-	reported_lca, nodes, percentages=tree.getLCA(sub_taxids,rank=1,majority_threshold=0.9)
+	reported_lca, nodes, percentages=tree.getLCA(sub_taxids,rank=args.rank,majority_threshold=args.majority)
 	lca_per_sequence.append(reported_lca.taxid)
 	nodes_per_sequence.append(nodes)
 	percentages_per_sequence.append(percentages)
 		
 
-reported_lca, nodes, percentages=tree.getLCA(lca_per_sequence,rank=1,majority_threshold=0.9) #standard ranks: 0 (species), 1 (genus), ..., majority threshold 0.9
+reported_lca, nodes, percentages=tree.getLCA(lca_per_sequence,rank=args.rank,majority_threshold=args.majority) #standard ranks: 0 (species), 1 (genus), ..., majority threshold 0.9
 
 
 #result is a tuple containing (completeness(fraction), contamination(fraction))
 print("Comp.\tCont.\tSt. Het.\tncbi_taxid\ttaxon_name\ttaxon_rank\n%.4f\t%.4f\t%.4f\t%i\t%s\t%s" %(float(completeness),float(contamination), aai, reported_lca.taxid, reported_lca.name, reported_lca.rank))
 
-print("\nLCA path and percentage of marker genes assignment:")
-print("%s" % "\t".join([nodes[i].name+" "+str(round(percentages[i],2)) for i in range(len(nodes))]))
+if args.taxonomy_output:
+    output_file=args.taxonomy_output
+    with open(output_file, "w") as outfile_handler:
+        outfile_handler.write("LCA path and percentage of marker genes assignment:\n")
+        outfile_handler.write("%s\n" % "\t".join([nodes[i].name+" "+str(round(percentages[i],2)) for i in range(len(nodes))]))
 
-print("\nLCA per sequence of identified marker genes:")
-for i in range(len(sequence_ids)):
-	taxonomy="\t".join([nodes_per_sequence[i][j].name+" "+str(round(percentages_per_sequence[i][j],2)) for j in range(len(nodes_per_sequence[i]))])
-	print("%s\t%s\t%s"%(sequence_ids[i],enog_names[i],taxonomy))
+        outfile_handler.write("\nLCA per sequence of identified marker genes:i\n")
+        for i in range(len(sequence_ids)):
+	    taxonomy="\t".join([nodes_per_sequence[i][j].name+" "+str(round(percentages_per_sequence[i][j],2)) for j in range(len(nodes_per_sequence[i]))])
+	    outfile_handler.write("%s\t%s\t%s\n"%(sequence_ids[i],enog_names[i],taxonomy))
