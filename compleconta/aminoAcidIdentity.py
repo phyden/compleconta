@@ -40,7 +40,7 @@ def make_alignments(sequences, muscle_executable="muscle"):
     return str(alignment[0].seq), str(alignment[1].seq)
 
 
-def aai_check(gene_collection, args):
+def aai_check(gene_collection, args, muscle_executable):
     """Calculate AAI between input alignments."""
     aai_raw_scores = {}
     aai_strain_threshold = args.aai
@@ -53,7 +53,7 @@ def aai_check(gene_collection, args):
             seq_id_i, seq_i = seqs.popitem()
             for seq_id_j, seq_j in seqs.items():
                 seq_i, seq_j = make_alignments({seq_id_i: seq_i, seq_id_j: seq_j},
-                                               muscle_executable=args.muscle_executable)
+                                               muscle_executable=muscle_executable)
                 aai = aai_seq(seq_i, seq_j)
                 aai_raw_scores[markerId].append(aai)
 

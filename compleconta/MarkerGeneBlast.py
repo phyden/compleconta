@@ -3,8 +3,6 @@
 import sys, os, tempfile, subprocess
 import multiprocessing
 
-from compleconta import Annotation
-
 
 def prepareFiles(gc, enog_list):
     """ function which creates a temporary directory and input, output filepairs for each sequence with the info to which enog it belongs """
@@ -34,18 +32,14 @@ def prepareFiles(gc, enog_list):
     return tmp_dir, outfiles, inputfiles, enogs_used, seqs_used
 
 
-def runBlastJob(parameter_set):
+def run_blast_job(parameter_set):
     """ run function which is called by the multiprocessing pool """
 
-    database, inputfile, outputfile, margin = parameter_set
+    database, inputfile, outputfile, margin, blast_executable, makeblastdb_executable = parameter_set
 
-    blast_executeable = "/apps/ncbiblastplus/2.8.1/bin/blastp"
-
-    if check_database(database) == 0:
-        # os.system("blastp -db %s -query %s -out %s -outfmt '6'" % parameter_set[:3])
-        exit_status = subprocess.call(
-            #["blastp", "-db", database, "-query", inputfile, "-out", outputfile, "-outfmt", "6"])
-            [blast_executeable, "-db", database, "-query", inputfile, "-out", outputfile, "-outfmt", "6"])
+    if check_database(database, makeblastdb_executable) == 0:
+        exit_status = subprocess.call([blast_executable, "-db", database, "-query", inputfile, "-out", outputfile,
+                                       "-outfmt", "6"])
         best_hit = readOutput(outputfile, margin)
         return best_hit
 
@@ -53,7 +47,7 @@ def runBlastJob(parameter_set):
         return []
 
 
-def check_database(database):
+def check_database(database, blast_executable):
     """ checks existance of database file & creates index files in necessary """
 
     endings = ["phr", "pin", "psq"]
@@ -81,9 +75,7 @@ def check_database(database):
 
     if recreate == True:
         sys.stderr.write("Info: database indices will be created for %s\n" % database)
-        blast_executeable = "/apps/ncbiblastplus/2.8.1/bin/makeblastdb"
-        # os.system("makeblastdb -in %s -dbtype prot" % database)
-        subprocess.call([blast_executeable, "-in", database, "-dbtype", "prot"])
+        subprocess.call([blast_executable, "-in", database, "-dbtype", "prot"])
 
     return 0
 
@@ -110,28 +102,28 @@ def readOutput(outputfile, margin):
     return tophit
 
 
-def getTaxidsFromSequences(databasepath, gc, n_threads_blast=5, margin=0.9):
-    """ master function that runs above functions parallelized in a worker pool of n_threads_blast subprocesses """
+def getTaxidsFromSequences(databasepath, gc, args, blast_executable, makeblastdb_executable):
+    """ master function that runs above functions parallelized in a worker pool of n_blast_threads subprocesses """
 
-    n_threads_blast = max(n_threads_blast, 1)  # minimum number of workers: 1
-
-    margin = min(abs(margin), 1.0)  # margin has to be in range 0.0-1.0
+    n_blast_threads = max(args.n_blast_threads, 1)  # minimum number of workers: 1
+    margin = min(abs(args.margin), 1.0)  # margin has to be in range 0.0-1.0
 
     best_hits = []
 
     enog_list = gc.get_profile()
 
-    pool = multiprocessing.Pool(n_threads_blast)
+    pool = multiprocessing.Pool(n_blast_threads)
 
     tmp_dir, outfiles, inputfiles, enog_list, seq_list = prepareFiles(gc, enog_list)
 
     parameter_sets = []
+
     for i in range(0, len(enog_list)):
         database = databasepath + "/" + enog_list[i] + ".fa"
-        parameter_sets.append((database, inputfiles[i], outfiles[i], margin))
+        parameter_sets.append((database, inputfiles[i], outfiles[i], margin, blast_executable, makeblastdb_executable))
         # best_hit=runBlastJob(parameter_sets[i])
 
-    best_hits = pool.map(runBlastJob, parameter_sets)
+    best_hits = pool.map(run_blast_job, parameter_sets)
 
     os.system("rm -r %s" % tmp_dir)
 

@@ -28,7 +28,7 @@ def get_args():
                         help='Contamination: amino acid identity to which the multiple marker genes are considered to be strain heterogenic')
     parser.add_argument('-o', dest='taxonomy_output', type=str, required=False,
                         help='Taxonomy: file to write additional taxonomic information for each marker gene, if not set, information is omitted')
-    parser.add_argument('--threads', dest='n_blastp_threads', type=int, default=5,
+    parser.add_argument('--threads', dest='n_blast_threads', type=int, default=5,
                         help='Taxonomy: number of parallel blastp jobs run')
     parser.add_argument('--muscle', dest='muscle_executable', type=str, required=False,
                         help='Path to the muscle executable')
@@ -67,7 +67,7 @@ def check_requirements(args):
             else:
                 muscle = args.muscle_executable
 
-    required_executables = [blastp, makeblastdb, muscle]
+    required_executables = (blastp, makeblastdb, muscle)
 
     for requirement in required_executables:
         try:
@@ -76,12 +76,14 @@ def check_requirements(args):
             sys.stderr.write('Error: executable \'{module}\' not found in PATH\nExiting\n'.format(module=requirement))
             exit(1)
 
+    return required_executables
+
 
 def main():
     """Main function"""
 
     args = get_args()
-    check_requirements(args)
+    blast_executable, makeblastdb_executable, muscle_executable = check_requirements(args)
 
     protein_file = args.protein_file
     hmmer_file = args.hmmer_file
@@ -103,15 +105,15 @@ def main():
     # subset to enogs that actually are in the list - needed for AAI, speeds up cc slightly
     gc_subset = gc.subset(curated34_list)
 
-    aai = aminoAcidIdentity.aai_check(gc_subset, args)
+    aai = aminoAcidIdentity.aai_check(gc_subset, args, muscle_executable)
     completeness, contamination = Check.check_genome_cc_weighted(marker_set, gc.get_profile())
 
     data_dir = IOobj.get_data_dir()
 
     database_dir = data_dir + "/databases"
 
-    taxid_list, sequence_ids, enog_names = MarkerGeneBlast.getTaxidsFromSequences(database_dir, gc_subset,
-                                                                                  args.n_blastp_threads, args.margin)
+    taxid_list, sequence_ids, enog_names = MarkerGeneBlast.getTaxidsFromSequences(database_dir, gc_subset, args,
+                                                                                  blast_executable, makeblastdb_executable)
 
     taxonomy_dir = data_dir + "/taxonomy"
 
