@@ -32,7 +32,8 @@ def make_alignments(sequences):
         tmpfasta.append(">"+header)
         tmpfasta.append(sequences[header])
 
-    child=subprocess.Popen("muscle",stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,shell=False)
+    muscle_executable="/apps/muscle/3.8.31/muscle"
+    child=subprocess.Popen(muscle_executable,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,shell=False)
     child.stdin.write("\n".join(tmpfasta))
     child.stdin.close()
     alignment = AlignIO.read(child.stdout, "fasta")
@@ -50,12 +51,9 @@ def aai_check(aaiStrainThreshold, gene_collection):
     for markerId in mc_enogs:
         seqs=gene_collection.get_sequences_by_enog(markerId)        
         aaiRawScores[markerId]=[]
-        for i in xrange(0, len(seqs)):
-            seqIdI = seqs.keys()[i]
-            seqI = seqs[seqIdI]
-            for j in xrange(i + 1, len(seqs)):
-                seqIdJ = seqs.keys()[j]
-                seqJ = seqs[seqIdJ]
+        for i in range(len(seqs)):
+            seqIdI, seqI = seqs.popitem()
+            for seqIdJ, seqJ in seqs.items():
                 seqI, seqJ = make_alignments({seqIdI: seqI, seqIdJ: seqJ})
                 aai = aai_seq(seqI, seqJ)
                 aaiRawScores[markerId].append(aai)
@@ -96,14 +94,14 @@ def aai_seq(seq1, seq2):
     # calculation of AAI should ignore missing data at
     # the start of end of each sequence
     startIndex = 0
-    for i in xrange(0, len(seq1)):
+    for i in range(0, len(seq1)):
         if seq1[i] == '-' or seq2[i] == '-':
             startIndex = i + 1
         else:
             break
 
     endIndex = len(seq1)
-    for i in xrange(len(seq1) - 1, 0, -1):
+    for i in range(len(seq1) - 1, 0, -1):
         if seq1[i] == '-' or seq2[i] == '-':
             endIndex = i
         else:
@@ -111,7 +109,7 @@ def aai_seq(seq1, seq2):
 
     mismatches = 0
     seqLen = 0
-    for i in xrange(startIndex, endIndex):
+    for i in range(startIndex, endIndex):
         if seq1[i] != seq2[i]:
             mismatches += 1
             seqLen += 1

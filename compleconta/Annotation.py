@@ -1,7 +1,7 @@
 #!/usr/env python
 
 import sys, os
-import FileIO
+from compleconta import FileIO
 
 class GeneCollection():
 
