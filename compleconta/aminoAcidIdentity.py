@@ -25,13 +25,12 @@ import subprocess
 from Bio import AlignIO
 
 
-def make_alignments(sequences):
+def make_alignments(sequences, muscle_executable="muscle"):
     tmpfasta = []
     for header in sequences.keys():
         tmpfasta.append(">" + header)
         tmpfasta.append(sequences[header])
 
-    muscle_executable = "/apps/muscle/3.8.31/muscle"
     child = subprocess.Popen(muscle_executable, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              universal_newlines=True, shell=False)
     child.stdin.write("\n".join(tmpfasta))
@@ -41,9 +40,10 @@ def make_alignments(sequences):
     return str(alignment[0].seq), str(alignment[1].seq)
 
 
-def aai_check(aai_strain_threshold, gene_collection):
+def aai_check(gene_collection, args):
     """Calculate AAI between input alignments."""
     aai_raw_scores = {}
+    aai_strain_threshold = args.aai
 
     mc_enogs = gene_collection.get_multicopy_enogs()
     for markerId in mc_enogs:
@@ -52,7 +52,8 @@ def aai_check(aai_strain_threshold, gene_collection):
         for i in range(len(seqs)):
             seq_id_i, seq_i = seqs.popitem()
             for seq_id_j, seq_j in seqs.items():
-                seq_i, seq_j = make_alignments({seq_id_i: seq_i, seq_id_j: seq_j})
+                seq_i, seq_j = make_alignments({seq_id_i: seq_i, seq_id_j: seq_j},
+                                               muscle_executable=args.muscle_executable)
                 aai = aai_seq(seq_i, seq_j)
                 aai_raw_scores[markerId].append(aai)
 

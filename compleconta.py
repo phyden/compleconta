@@ -3,6 +3,7 @@
 # usage: compleconta.py /path/to/protein_file.faa /path/to/hmmer_results.faa.out
 
 import sys
+import os
 import subprocess
 import argparse
 
@@ -29,16 +30,44 @@ def get_args():
                         help='Taxonomy: file to write additional taxonomic information for each marker gene, if not set, information is omitted')
     parser.add_argument('--threads', dest='n_blastp_threads', type=int, default=5,
                         help='Taxonomy: number of parallel blastp jobs run')
+    parser.add_argument('--muscle', dest='muscle_executable', type=str, required=False,
+                        help='Path to the muscle executable')
+    parser.add_argument('--blast', dest='blast_executable', type=str, required=False,
+                        help='Path to the blast executable (makeblastdb)')
 
     # check for required executables
-    #check_requirements()
 
     return parser.parse_args()
 
 
-def check_requirements():
+def check_requirements(args):
     """Simple function that checks for BLAST and MUSCLE executables"""
-    required_executables = ["blastp", "makeblastdb", "muscle"]
+
+    if args.blast_executable:
+        if not os.path.exists(args.blast_executable):
+            blastp = "blast"
+        else:
+            if os.path.isdir(args.blast_executable):
+                blastp = os.path.join(args.blast_executable, "blastp")
+                makeblastdb = os.path.join(args.blast_executable, "makeblastdb")
+            else:
+                if os.path.basename(args.blast_executable) == "blastp":
+                    blastp = args.blast_executable
+                    makeblastdb = os.path.join(os.path.dirname(args.blast_executable),"makeblastdb")
+                elif os.path.basename(args.blast_executable) == "makeblastdb":
+                    blastp = os.path.join(os.path.dirname(args.blast_executable), "blastp")
+                    makeblastdb = args.blast_executable
+
+    if args.muscle_executable:
+        if not os.path.exists(args.muscle_executable):
+            muscle = "muscle"
+        else:
+            if os.path.isdir(args.muscle_executable):
+                muscle = os.path.join(args.muscle_executable, muscle)
+            else:
+                muscle = args.muscle_executable
+
+    required_executables = [blastp, makeblastdb, muscle]
 
     for requirement in required_executables:
         try:
@@ -52,6 +81,7 @@ def main():
     """Main function"""
 
     args = get_args()
+    check_requirements(args)
 
     protein_file = args.protein_file
     hmmer_file = args.hmmer_file
@@ -73,7 +103,7 @@ def main():
     # subset to enogs that actually are in the list - needed for AAI, speeds up cc slightly
     gc_subset = gc.subset(curated34_list)
 
-    aai = aminoAcidIdentity.aai_check(args.aai, gc_subset)
+    aai = aminoAcidIdentity.aai_check(gc_subset, args)
     completeness, contamination = Check.check_genome_cc_weighted(marker_set, gc.get_profile())
 
     data_dir = IOobj.get_data_dir()
