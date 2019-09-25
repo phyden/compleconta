@@ -44,26 +44,29 @@ def check_requirements(args):
     """Simple function that checks for BLAST and MUSCLE executables"""
 
     if args.blast_executable:
-        if not os.path.exists(args.blast_executable):
-            blastp = "blast"
-        else:
+        if os.path.exists(args.blast_executable):
             if os.path.isdir(args.blast_executable):
                 blastp = os.path.join(args.blast_executable, "blastp")
                 makeblastdb = os.path.join(args.blast_executable, "makeblastdb")
             else:
-                if os.path.basename(args.blast_executable) == "blastp":
-                    blastp = args.blast_executable
-                    makeblastdb = os.path.join(os.path.dirname(args.blast_executable),"makeblastdb")
-                elif os.path.basename(args.blast_executable) == "makeblastdb":
+                if not os.path.basename(args.blast_executable) == "blastp":
                     blastp = os.path.join(os.path.dirname(args.blast_executable), "blastp")
                     makeblastdb = args.blast_executable
+                else:
+                    blastp = args.blast_executable
+                    makeblastdb = os.path.join(os.path.dirname(args.blast_executable), "makeblastdb")
+
+        else:
+            blastp = "blast"
+            makeblastdb = "makeblastdb"
+
 
     if args.muscle_executable:
         if not os.path.exists(args.muscle_executable):
             muscle = "muscle"
         else:
             if os.path.isdir(args.muscle_executable):
-                muscle = os.path.join(args.muscle_executable, muscle)
+                muscle = os.path.join(args.muscle_executable, "muscle")
             else:
                 muscle = args.muscle_executable
 
