@@ -112,8 +112,8 @@ def main():
 
     database_dir = data_dir + "/databases"
 
-    taxid_list, sequence_ids, enog_names = MarkerGeneBlast.getTaxidsFromSequences(database_dir, gc_subset, args,
-                                                                                  blast_executable, makeblastdb_executable)
+    taxid_list, sequence_ids, enog_names = MarkerGeneBlast.get_taxids_of_sequences(database_dir, gc_subset, args,
+                                                                                   blast_executable, makeblastdb_executable)
 
     taxonomy_dir = data_dir + "/taxonomy"
 
