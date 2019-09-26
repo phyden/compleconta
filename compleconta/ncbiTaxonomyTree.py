@@ -312,7 +312,8 @@ class NcbiTaxonomyTree(object):
 
 
     def getLCA(self, taxids, rank=1, majority_threshold=0.9):
-        """ Function to get LCA to a lowest possible rank as specified with a majority rule threshold as specified - the complete path down to lowest rank is still processed """
+        """ Function to get LCA to a lowest possible rank as specified with a majority rule threshold as specified -
+        the complete path down to lowest rank is still processed """
         
         rank=min(abs(rank),len(self.standard_ranks))
         selected_rank=self.standard_ranks[rank]
@@ -321,37 +322,26 @@ class NcbiTaxonomyTree(object):
         max_len=0
 
         for result in taxids:
-            this_result_paths=[]
-
-            #result is might be a list containing taxids as result for a single sequence, deprecated - not used. current input: taxids is a list, result is a string(?)
-            #if type(result) is list and len(result) > 1:
-            #    print(result)
-            #    taxid, name, rank = self.getLCA(result)
-            #    print(taxid, name, rank)
-            #elif type(result) is list:
-   	    #	taxid=int(result[0])
-	    #else:
-	    #	taxid=int(result)
             taxid=int(result)
 
             path=self.getAscendantsWithRanksAndNames([taxid],only_std_ranks=True)[taxid]
             path_as_list=[]
             for node in path[::-1]: #::-1 --> reversed order of list (advanced splicing)
-		if not selected_rank == "species" and node.rank=="species": 	#some taxons apparently leave out other standard_ranks and jump forward to species, so in rare cases species level could be
-		    break							#reported although they are not selected.
+                if not selected_rank == "species" and node.rank=="species": 	#some taxons apparently leave out other standard_ranks and jump forward to species, so in rare cases species level could be
+                    break							#reported although they are not selected.
                 path_as_list.append(node)
                 if node.rank==selected_rank:
                     break
             max_len=max(len(path_as_list),max_len)
             all_paths.append(path_as_list)
 
-	Node = namedtuple('Node', ['taxid', 'rank', 'name'])
-	root_node=Node(taxid=1, rank='no rank', name='root')
+        Node = namedtuple('Node', ['taxid', 'rank', 'name'])
+        root_node=Node(taxid=1, rank='no rank', name='root')
         lca=root_node #if no taxid is provided --> root
 
-	max_len=len(self.standard_ranks)-rank
-	return_nodes=[]
-	return_percentages=[]
+        max_len=len(self.standard_ranks)-rank
+        return_nodes=[]
+        return_percentages=[]
         size=len(all_paths)
         for i in range(0,max_len):
             tmp_dict={}
@@ -362,18 +352,18 @@ class NcbiTaxonomyTree(object):
                     #print("WARNING: not all paths equally long")
                     pass
             
-	    try:
-            	m_node=max(tmp_dict, key=tmp_dict.get)
-	    except ValueError: #if dict remains empty
-		break
-            m_frac=float(tmp_dict[m_node])/size
+            try:
+                m_node=max(tmp_dict, key=tmp_dict.get)
+            except ValueError: #if dict remains empty
+                break
+            m_frac = float(tmp_dict[m_node])/size
             if m_frac >= majority_threshold:
-                lca=m_node
-	    return_nodes.append(m_node)
-	    return_percentages.append(m_frac)
+                lca = m_node
+            return_nodes.append(m_node)
+            return_percentages.append(m_frac)
 
-	if lca.taxid==2: #so far only bacteria are in database. if superkingdom == bacteria, we can not exclude it is something different (e.g. archaea)
-	    lca=root_node
+        if lca.taxid==2: #so far only bacteria are in database. if superkingdom == bacteria, we can not exclude it is something different (e.g. archaea)
+            lca=root_node
                 
         return lca, return_nodes, return_percentages
         

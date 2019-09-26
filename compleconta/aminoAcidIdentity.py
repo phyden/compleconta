@@ -1,7 +1,8 @@
 ###############################################################################
 #
-# aminoAcidIdentity.py - calculate AAI between aligned marker genes
-# copied from checkM. modified by Patrick Hyden, Oct 2017
+#   aminoAcidIdentity.py - calculate AAI between aligned marker genes
+#   copied from checkM. modified by Patrick Hyden, Oct 2017
+#   Made python3 compatible and substantial refactoring in Sept 2019
 #
 ###############################################################################
 #                                                                             #
@@ -20,19 +21,18 @@
 #                                                                             #
 ###############################################################################
 
-import os
-import sys
 import subprocess
 from Bio import AlignIO
 
-def make_alignments(sequences):
 
-    tmpfasta=[]
+def make_alignments(sequences, muscle_executable="muscle"):
+    tmpfasta = []
     for header in sequences.keys():
-        tmpfasta.append(">"+header)
+        tmpfasta.append(">" + header)
         tmpfasta.append(sequences[header])
 
-    child=subprocess.Popen("muscle",stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,shell=False)
+    child = subprocess.Popen(muscle_executable, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             universal_newlines=True, shell=False)
     child.stdin.write("\n".join(tmpfasta))
     child.stdin.close()
     alignment = AlignIO.read(child.stdout, "fasta")
@@ -40,54 +40,51 @@ def make_alignments(sequences):
     return str(alignment[0].seq), str(alignment[1].seq)
 
 
-def aai_check(aaiStrainThreshold, gene_collection):
+def aai_check(gene_collection, args, muscle_executable):
     """Calculate AAI between input alignments."""
-    aaiRawScores = {}
-    aaiHetero = {}
-    aaiMeanBinHetero = {}
+    aai_raw_scores = {}
+    aai_strain_threshold = args.aai
 
-    mc_enogs=gene_collection.get_multicopy_enogs()
+    mc_enogs = gene_collection.get_multicopy_enogs()
     for markerId in mc_enogs:
-        seqs=gene_collection.get_sequences_by_enog(markerId)        
-        aaiRawScores[markerId]=[]
-        for i in xrange(0, len(seqs)):
-            seqIdI = seqs.keys()[i]
-            seqI = seqs[seqIdI]
-            for j in xrange(i + 1, len(seqs)):
-                seqIdJ = seqs.keys()[j]
-                seqJ = seqs[seqIdJ]
-                seqI, seqJ = make_alignments({seqIdI: seqI, seqIdJ: seqJ})
-                aai = aai_seq(seqI, seqJ)
-                aaiRawScores[markerId].append(aai)
+        seqs = gene_collection.get_sequences_by_enog(markerId)
+        aai_raw_scores[markerId] = []
+        for i in range(len(seqs)):
+            seq_id_i, seq_i = seqs.popitem()
+            for seq_id_j, seq_j in seqs.items():
+                seq_i, seq_j = make_alignments({seq_id_i: seq_i, seq_id_j: seq_j},
+                                               muscle_executable=muscle_executable)
+                aai = aai_seq(seq_i, seq_j)
+                aai_raw_scores[markerId].append(aai)
 
-    aaiHetero, aaiMeanBinHetero = strainHetero(aaiRawScores, aaiStrainThreshold)
+    aai_hetero, aai_mean_bin_hetero = strain_hetero(aai_raw_scores, aai_strain_threshold)
 
-    return aaiMeanBinHetero
+    return aai_mean_bin_hetero
 
-def strainHetero(aaiScores, aaiStrainThreshold):
+
+def strain_hetero(aai_scores, aai_strain_threshold):
     """Calculate strain heterogeneity."""
-    aaiMeanBinHetero = {}
-    aaiHetero = {}
-    strainCount = 0
-    multiCopyPairs = 0
+    aai_hetero = {}
+    strain_count = 0
+    multi_copy_pairs = 0
 
+    for markerId in aai_scores.keys():
+        local_strain_count = 0
+        for aaiScore in aai_scores[markerId]:
+            multi_copy_pairs += 1
+            if aaiScore > aai_strain_threshold:
+                strain_count += 1
+                local_strain_count += 1
+            hetero = float(local_strain_count) / len(aai_scores[markerId])
+            aai_hetero[markerId] = hetero
 
-    for markerId in aaiScores.keys():
-        localStrainCount = 0
-        for aaiScore in aaiScores[markerId]:
-            multiCopyPairs += 1
-            if aaiScore > aaiStrainThreshold:
-                strainCount += 1
-                localStrainCount += 1
-            strainHetero = float(localStrainCount) / len(aaiScores[markerId])
-            aaiHetero[markerId] = strainHetero
-
-    if not multiCopyPairs==0:
-        aaiMeanBinHetero = float(strainCount) / multiCopyPairs
+    if not multi_copy_pairs == 0:
+        aai_mean_bin_hetero = float(strain_count) / multi_copy_pairs
     else:
-        aaiMeanBinHetero = 0
+        aai_mean_bin_hetero = 0
 
-    return aaiHetero, aaiMeanBinHetero
+    return aai_hetero, aai_mean_bin_hetero
+
 
 def aai_seq(seq1, seq2):
     """Calculate amino acid identity between sequences."""
@@ -95,32 +92,32 @@ def aai_seq(seq1, seq2):
 
     # calculation of AAI should ignore missing data at
     # the start of end of each sequence
-    startIndex = 0
-    for i in xrange(0, len(seq1)):
+    start_index = 0
+    for i in range(0, len(seq1)):
         if seq1[i] == '-' or seq2[i] == '-':
-            startIndex = i + 1
+            start_index = i + 1
         else:
             break
 
-    endIndex = len(seq1)
-    for i in xrange(len(seq1) - 1, 0, -1):
+    end_index = len(seq1)
+    for i in range(len(seq1) - 1, 0, -1):
         if seq1[i] == '-' or seq2[i] == '-':
-            endIndex = i
+            end_index = i
         else:
             break
 
     mismatches = 0
-    seqLen = 0
-    for i in xrange(startIndex, endIndex):
+    seq_len = 0
+    for i in range(start_index, end_index):
         if seq1[i] != seq2[i]:
             mismatches += 1
-            seqLen += 1
+            seq_len += 1
         elif seq1[i] == '-' and seq2[i] == '-':
             pass
         else:
-            seqLen += 1
+            seq_len += 1
 
-    if seqLen == 0:
+    if seq_len == 0:
         return 0.0
 
-    return 1.0 - (float(mismatches) / seqLen)
+    return 1.0 - (float(mismatches) / seq_len)
