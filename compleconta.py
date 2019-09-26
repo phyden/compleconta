@@ -11,6 +11,8 @@ from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check,
 
 
 def get_args():
+    #TODO: add argument to let the user choose different sets/database:
+    # this will require a major change in the structure! However, EggNOG5 should be supported at some point
     parser = argparse.ArgumentParser(description='Completeness and Contamination estimation using EggNOG-profiles',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 

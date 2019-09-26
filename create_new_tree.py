@@ -6,6 +6,8 @@ import subprocess
 from compleconta.ncbiTaxonomyTree import NcbiTaxonomyTree
 from compleconta.FileIO import FileIO
 
+# TODO: add argumentparser to let the user specify taxonomy location and taxids used
+
 ncbi_taxonomy_tar = "/mirror/ncbi/current/taxonomy/taxdump.tar.gz"
 tmp_dir = tempfile.mkdtemp()
 
