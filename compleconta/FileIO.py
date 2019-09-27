@@ -33,15 +33,15 @@ def load_enog_annotation(hmmer_outfile):
 
 class FileIO:
 
-    def __init__(self, output_filename="output_file.tsv"):
+    def __init__(self, eggnog_version="eggnog4", output_filename="output_file.tsv"):
 
     #set the environment:
         self.proj_dir=os.path.dirname(__file__)
 
-        self.data_dir=self.proj_dir+"/../data"
+        self.data_dir=self.proj_dir+"/../data/"+eggnog_version
 
-        self.universal_cogs_file=self.data_dir+"/curated_34_enogs.txt"
-        self.sorted_enogs_file=self.data_dir+"/sc_mc_counts_sorted_sc_short.tsv"
+        self.universal_cogs_file=self.data_dir+"/set_of_enogs.txt"
+        self.sorted_enogs_file=self.data_dir+"/copynumber_counts.tsv"
 
     ## functions ##
 
