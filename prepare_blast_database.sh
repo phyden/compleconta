@@ -2,17 +2,17 @@
 
 PATH_TO_BACTNOG_DB=/mirror/eggnog/eggnog_4.5/data/bactNOG/bactNOG.raw_algs.tar.gz
 
-TMPDIR=/tmp/bactNOG
-ENOG_LIST=$(pwd)/data/curated_34_enogs.txt
-TAXID_LIST=$(pwd)/data/tax_ids_used.txt
+TMPDIR=$(mktemp)
+ENOG_LIST=$(pwd)/data/eggnog4/set_of_enogs.txt
+TAXID_LIST=$(pwd)/data/eggnog4/tax_ids_used.txt
 
-TARGET_DIR=$(pwd)/data/databases
-mkdir -p ${TARGET_DIR} $TMPDIR
+TARGET_DIR=$(pwd)/data/eggnog4/databases
+mkdir -p ${TARGET_DIR}
 
-cd $TMPDIR
+pushd $TMPDIR
 
 DATABASE_EXISTING=1
-for ENOG in $(less ${ENOG_LIST}); do
+for ENOG in $(cat ${ENOG_LIST}); do
 	if ! [ -f ${TARGET_DIR}/$ENOG".fa" ]; then
 		DATABASE_EXISTING=0
 	fi
@@ -39,4 +39,5 @@ if ! [ -f ${TAXID_LIST} ]; then
 	grep -o "[0-9][0-9]*" ${TARGET_DIR}/*".fa" | cut -f2 -d":" | sort | uniq > ${TAXID_LIST}
 fi
 
+popd
 rm -r $TMPDIR
