@@ -36,6 +36,8 @@ def get_args():
                         help='Path to the muscle executable')
     parser.add_argument('--blast', dest='blast_executable', type=str, required=False,
                         help='Path to the blast executable (makeblastdb)')
+    parser.add_argument('--eggnog5', dest='eggnog5', action='store_true',
+                        help='Defines eggnog5 database to be used (default: eggnog4)')
 
     # check for required executables
 
@@ -93,8 +95,13 @@ def main():
     protein_file = args.protein_file
     hmmer_file = args.hmmer_file
 
+    if args.eggnog5:
+        eggnog_version = "eggnog5"
+    else:
+        eggnog_version = "eggnog4"
+
     # using the FileIO class from compleconta. the enog lists+enog weights are stored in two files which are also found in compleconta/data
-    IOobj = FileIO.FileIO()
+    IOobj = FileIO.FileIO(eggnog_version)
 
     # function read_enog_list returns a list only if no header present (first column), or a dict additionally (all information)
     all_enogs, enog_dict = IOobj.read_enog_list(IOobj.sorted_enogs_file, header=True)
