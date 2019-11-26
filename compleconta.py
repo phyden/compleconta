@@ -95,6 +95,7 @@ def main():
     protein_file = args.protein_file
     hmmer_file = args.hmmer_file
 
+    # TODO: automatically identify eggnog4 or eggnog5 useage by OG names.
     if args.eggnog5:
         eggnog_version = "eggnog5"
     else:
@@ -104,7 +105,11 @@ def main():
     IOobj = FileIO.FileIO(eggnog_version)
 
     # function read_enog_list returns a list only if no header present (first column), or a dict additionally (all information)
-    all_enogs, enog_dict = IOobj.read_enog_list(IOobj.sorted_enogs_file, header=True)
+    if os.path.isfile(IOobj.sorted_enogs_file):
+        _, enog_dict = IOobj.read_enog_list(IOobj.sorted_enogs_file, header=True)
+    else:
+        sys.stderr.write("Warning: no weights for OGs provided. All used OGs will receive equal weights\n\n")
+        enog_dict = {}
     curated34_list = IOobj.read_enog_list(IOobj.universal_cogs_file, header=False)
 
     # to handle the weights, I created a EnogList class. initialized with the enog list and the dictionary
