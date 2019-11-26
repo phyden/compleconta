@@ -47,6 +47,11 @@ def get_args():
 def check_requirements(args):
     """Simple function that checks for BLAST and MUSCLE executables"""
 
+    # set default executable paths
+    blastp = "blastp"
+    makeblastdb = "makeblastdb"
+    muscle = "muscle"
+
     if args.blast_executable:
         if os.path.exists(args.blast_executable):
             if os.path.isdir(args.blast_executable):
@@ -60,15 +65,10 @@ def check_requirements(args):
                     blastp = args.blast_executable
                     makeblastdb = os.path.join(os.path.dirname(args.blast_executable), "makeblastdb")
 
-        else:
-            blastp = "blast"
-            makeblastdb = "makeblastdb"
 
 
     if args.muscle_executable:
-        if not os.path.exists(args.muscle_executable):
-            muscle = "muscle"
-        else:
+        if os.path.exists(args.muscle_executable):
             if os.path.isdir(args.muscle_executable):
                 muscle = os.path.join(args.muscle_executable, "muscle")
             else:
