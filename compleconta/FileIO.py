@@ -13,6 +13,9 @@ def load_sequences(protein_file):
             for record in SeqIO.parse(infile,"fasta"):
                 seq_return[record.id]=str(record.seq)
 
+    if len(seq_return) == 0:
+        sys.stderr.write("ERROR: provided protein.fasta file empty: {}\n".format(protein_file))
+        raise EOFError
     return seq_return
 
 
@@ -26,6 +29,9 @@ def load_enog_annotation(hmmer_outfile):
                 line=line.strip().split("\t")
                 proteins[line[0]]=line[1]
 
+    if len(proteins) == 0:
+        sys.stderr.write("ERROR: provided genotype file empty: {}\n".format(hmmer_outfile))
+        raise EOFError
     return proteins
 
 
