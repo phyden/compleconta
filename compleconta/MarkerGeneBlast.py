@@ -63,7 +63,7 @@ def check_database(database, blast_executable):
     try:
         time_db = os.path.getctime(database)
     except OSError:
-        sys.stderr.write("Error: database file not existing or inaccessible: %s\n" % database)
+        sys.stderr.write("ERROR: database file not existing or inaccessible: %s\n" % database)
         return 1
 
     recreate = False
@@ -76,13 +76,13 @@ def check_database(database, blast_executable):
                 break
         except OSError:
             if os.path.isfile(indexfile):
-                sys.stderr.write("Error: database index existing but inaccessible: %s\n" % indexfile)
+                sys.stderr.write("ERROR: database index existing but inaccessible: %s\n" % indexfile)
                 return 1
             else:
                 recreate = True
 
     if recreate:
-        sys.stderr.write("Info: database indices will be created for %s\n" % database)
+        sys.stderr.write("INFO: database indices will be created for %s\n" % database)
         subprocess.call([blast_executable, "-in", database, "-dbtype", "prot"])
 
     return 0

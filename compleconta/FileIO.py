@@ -4,14 +4,14 @@ import os
 import sys
 from Bio import SeqIO
 
-def load_sequences(protein_file):
 
-    seq_return={}
+def load_sequences(protein_file):
+    seq_return = {}
 
     if os.path.isfile(protein_file):
         with open(protein_file) as infile:
-            for record in SeqIO.parse(infile,"fasta"):
-                seq_return[record.id]=str(record.seq)
+            for record in SeqIO.parse(infile, "fasta"):
+                seq_return[record.id] = str(record.seq)
 
     if len(seq_return) == 0:
         sys.stderr.write("ERROR: provided protein.fasta file empty: {}\n".format(protein_file))
@@ -20,14 +20,13 @@ def load_sequences(protein_file):
 
 
 def load_enog_annotation(hmmer_outfile):
-
-    proteins={}
+    proteins = {}
 
     if os.path.isfile(hmmer_outfile):
         with open(hmmer_outfile) as infile:
             for line in infile:
-                line=line.strip().split("\t")
-                proteins[line[0]]=line[1]
+                line = line.strip().split("\t")
+                proteins[line[0]] = line[1]
 
     if len(proteins) == 0:
         sys.stderr.write("ERROR: provided genotype file empty: {}\n".format(hmmer_outfile))
@@ -48,7 +47,7 @@ def check_database(arg_database, sample_enogs):
         database = determine_database(sample_enogs)
 
     else:
-        if os.path.exists(os.path.dirname(__file__)+"/../data/" + arg_database):
+        if os.path.exists(os.path.dirname(__file__) + "/../data/" + arg_database):
             database = arg_database
         else:
             database = None
@@ -64,12 +63,12 @@ def determine_database(sample_enogs):
     """
 
     compare_set = set(sample_enogs)
-    data_dir = os.path.dirname(__file__)+"/../data"
+    data_dir = os.path.dirname(__file__) + "/../data"
     databases = os.listdir(data_dir)
     max_matches = 0
     database = None
     for db in databases:
-        with open(data_dir+"/"+db+"/set_of_enogs.txt") as inf_h:
+        with open(data_dir + "/" + db + "/set_of_enogs.txt") as inf_h:
 
             enog_set = set([enog.strip() for enog in inf_h.readlines()])
             matches = len(enog_set.intersection(compare_set))
@@ -90,13 +89,13 @@ class FileIO:
 
     def __init__(self, eggnog_version="eggnog4", output_filename="output_file.tsv"):
 
-    #set the environment:
-        self.proj_dir=os.path.dirname(__file__)
+        # set the environment:
+        self.proj_dir = os.path.dirname(__file__)
 
-        self.data_dir=self.proj_dir+"/../data/"+eggnog_version
+        self.data_dir = self.proj_dir + "/../data/" + eggnog_version
 
-        self.universal_cogs_file=self.data_dir+"/set_of_enogs.txt"
-        self.sorted_enogs_file=self.data_dir+"/copynumber_counts.tsv"
+        self.universal_cogs_file = self.data_dir + "/set_of_enogs.txt"
+        self.sorted_enogs_file = self.data_dir + "/copynumber_counts.tsv"
 
     ## functions ##
 
@@ -104,40 +103,39 @@ class FileIO:
         return self.data_dir
 
     def read_enog_list(self, inputfname, header):
-    
-        # get sorted list of ENOGs ignoring header or without header
-        read_list=[]
-    
-        if header==True:
-            first_line=True
-            read_dict={}
-            header_list=[]
-        else:
-            first_line=False
 
-        with open(inputfname,"r") as readfile:
+        # get sorted list of ENOGs ignoring header or without header
+        read_list = []
+
+        if header == True:
+            first_line = True
+            read_dict = {}
+            header_list = []
+        else:
+            first_line = False
+
+        with open(inputfname, "r") as readfile:
             for line in readfile:
-                if first_line==True:
-                    first_line=False
-                    header_list=line.strip().split("\t")
+                if first_line == True:
+                    first_line = False
+                    header_list = line.strip().split("\t")
                 else:
-                    tmpline=line.strip().split("\t")
-                    if header==True:
-                        read_dict[tmpline[0]]={}
-                        for i in range(1,len(tmpline)):
-                           read_dict[tmpline[0]][header_list[i]]=tmpline[i]
-                    #else:
+                    tmpline = line.strip().split("\t")
+                    if header == True:
+                        read_dict[tmpline[0]] = {}
+                        for i in range(1, len(tmpline)):
+                            read_dict[tmpline[0]][header_list[i]] = tmpline[i]
+                    # else:
                     read_list.append(tmpline[0])
-    
-        if header==True:
+
+        if header == True:
             return read_list, read_dict
         else:
             return read_list
-    
+
     def write_results(self, results_dict):
 
-        with open(self.output_file,"w") as outfile:
+        with open(self.output_file, "w") as outfile:
             outfile.write("%s\n" % "\t".join(results_dict.keys()))
             for i in range(len(results_dict[results_dict.keys()[0]])):
                 outfile.write("%s\n" % "\t".join(str(results_dict[key][i]) for key in results_dict.keys()))
-
