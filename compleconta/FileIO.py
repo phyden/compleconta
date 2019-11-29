@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-import sys, os
+import os
+import sys
 from Bio import SeqIO
-#import numpy as np
-#import numpy.random as random
 
 def load_sequences(protein_file):
 
     seq_return={}
-
 
     if os.path.isfile(protein_file):
         with open(protein_file) as infile:
@@ -29,6 +27,57 @@ def load_enog_annotation(hmmer_outfile):
                 proteins[line[0]]=line[1]
 
     return proteins
+
+
+def check_database(arg_database, sample_enogs):
+    """
+    Function to detect wheter the database specified as parameter is existing.
+    If 'auto' is specified, compleconta tries to automatically identify the database used
+    :param arg_database: String as provided by user
+    :param sample_enogs: list of enogs found in the sample
+    :return: string of database folder
+    """
+
+    if arg_database == 'auto':
+        database = determine_database(sample_enogs)
+
+    else:
+        if os.path.exists(os.path.dirname(__file__)+"/../data/" + arg_database):
+            database = arg_database
+        else:
+            database = None
+
+    return database
+
+
+def determine_database(sample_enogs):
+    """
+    Function to automatically determine which of the databases might have been used
+    :param sample_enogs: list of all enogs identifiers found in the sample
+    :return: string of database folder
+    """
+
+    compare_set = set(sample_enogs)
+    data_dir = os.path.dirname(__file__)+"/../data"
+    databases = os.listdir(data_dir)
+    max_matches = 0
+    database = None
+    for db in databases:
+        with open(data_dir+"/"+db+"/set_of_enogs.txt") as inf_h:
+
+            enog_set = set([enog.strip() for enog in inf_h.readlines()])
+            matches = len(enog_set.intersection(compare_set))
+            if matches > max_matches:
+                database = db
+                max_matches = matches
+
+    if database is None:
+        database = "eggnog5"
+        sys.stderr.write("WARNING: database could not be determined, using eggnog5\n")
+    else:
+        sys.stderr.write("INFO: database automatically determined. Using {}\n".format(database))
+
+    return database
 
 
 class FileIO:

@@ -11,8 +11,6 @@ from compleconta import FileIO, Annotation, EnogLists, aminoAcidIdentity, Check,
 
 
 def get_args():
-    #TODO: add argument to let the user choose different sets/database:
-    # this will require a major change in the structure! However, EggNOG5 should be supported at some point
     parser = argparse.ArgumentParser(description='Completeness and Contamination estimation using EggNOG-profiles',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -36,8 +34,8 @@ def get_args():
                         help='Path to the muscle executable')
     parser.add_argument('--blast', dest='blast_executable', type=str, required=False,
                         help='Path to the blast executable (makeblastdb)')
-    parser.add_argument('--eggnog5', dest='eggnog5', action='store_true',
-                        help='Defines eggnog5 database to be used (default: eggnog4)')
+    parser.add_argument('--database', dest='database', default='auto',
+                        help='database which was used for annotation')
 
     # check for required executables
 
@@ -80,7 +78,7 @@ def check_requirements(args):
         try:
             status = subprocess.check_output([requirement, "-version"])
         except OSError:
-            sys.stderr.write('Error: executable \'{module}\' not found in PATH\nExiting\n'.format(module=requirement))
+            sys.stderr.write('ERROR: executable \'{module}\' not found in PATH\nExiting\n'.format(module=requirement))
             exit(1)
 
     return required_executables
@@ -95,29 +93,29 @@ def main():
     protein_file = args.protein_file
     hmmer_file = args.hmmer_file
 
-    # TODO: automatically identify eggnog4 or eggnog5 useage by OG names.
-    if args.eggnog5:
-        eggnog_version = "eggnog5"
-    else:
-        eggnog_version = "eggnog4"
+    # the genecollection contains all enogs, the sequence names associated and the sequences. assumption: inputfile = <proteins>.faa and hmmer classification results in <proteins>.faa.out, same directory
+    gc = Annotation.GeneCollection()
+    gc.create_from_file(protein_file, hmmer_file)
+
+    # check if provided databasename is existing / auto determine
+    database = FileIO.check_database(args.database, gc.get_profile())
+    if database is None:
+        sys.stderr.write("ERROR: database not found:{}\n".format(args.database))
 
     # using the FileIO class from compleconta. the enog lists+enog weights are stored in two files which are also found in compleconta/data
-    IOobj = FileIO.FileIO(eggnog_version)
+    IOobj = FileIO.FileIO(database)
 
     # function read_enog_list returns a list only if no header present (first column), or a dict additionally (all information)
     if os.path.isfile(IOobj.sorted_enogs_file):
         _, enog_dict = IOobj.read_enog_list(IOobj.sorted_enogs_file, header=True)
     else:
-        sys.stderr.write("Warning: no weights for OGs provided. All used OGs will receive equal weights\n\n")
+        sys.stderr.write("INFO: no weights for OGs provided. All used OGs will receive equal weights\n")
         enog_dict = {}
     curated34_list = IOobj.read_enog_list(IOobj.universal_cogs_file, header=False)
 
     # to handle the weights, I created a EnogList class. initialized with the enog list and the dictionary
     marker_set = EnogLists.EnogList(curated34_list, enog_dict)
 
-    # the genecollection contains all enogs, the sequence names associated and the sequences. assumption: inputfile = <proteins>.faa and hmmer classification results in <proteins>.faa.out, same directory
-    gc = Annotation.GeneCollection()
-    gc.create_from_file(protein_file, hmmer_file)
 
     # subset to enogs that actually are in the list - needed for AAI, speeds up cc slightly
     gc_subset = gc.subset(curated34_list)
