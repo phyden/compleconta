@@ -74,7 +74,7 @@ The output of the example for EggNOG 5.0 is\*:
 .. code-block::
 
     Comp.	Cont.	St. Het.	ncbi_taxid	taxon_name	taxon_rank
-    0.9706	0.0588	0.0000	1760	Actinobacteria	class
+    1.0000	0.0000	0.0000	1760	Actinobacteria	class
 
 \*Note that the result may differ with other classification tools or databases used.
 
@@ -83,20 +83,14 @@ The optional output file contains detailed information about the marker genes th
 .. code-block::
 
     LCA path and percentage of marker genes assignment:
-    Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 0.89	Nocardioidaceae 0.89
+    Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 0.88	Nocardioidaceae 0.88
 
     LCA per sequence of identified marker genes:i
-    WP_008358950.1	COG0012	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008359388.1	COG0016	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008357500.1	COG0016	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008360965.1	COG0048	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 0.99	Streptomycetales 0.31	Streptomycetaceae 0.31	Streptomyces 0.29
-    WP_008360967.1	COG0049	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.56
     WP_008360994.1	COG0051	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Streptomycetales 0.30	Streptomycetaceae 0.30	Streptomyces 0.27
     WP_008362894.1	COG0080	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 0.93	Nocardioidaceae 0.93	Nocardioides 0.36
     WP_008362892.1	COG0081	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Pimelobacter 0.50
     WP_008360995.1	COG0087	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
-    WP_008360997.1	COG0088	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008362130.1	COG0088	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008360999.1	COG0089	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
     WP_008361002.1	COG0090	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008361005.1	COG0091	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
@@ -106,22 +100,24 @@ The optional output file contains detailed information about the marker genes th
     WP_040755997.1	COG0096	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.67
     WP_008361023.1	COG0097	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Pimelobacter 0.33
     WP_008361027.1	COG0098	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008361058.1	COG0100	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
-    WP_008362447.1	COG0102	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
-    WP_008357159.1	COG0126	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008363218.1	COG0130	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008363477.1	COG0143	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008357157.1	COG0149	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008355939.1	COG0172	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008363208.1	COG0184	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
     WP_008361004.1	COG0185	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Micrococcales 0.44	Intrasporangiaceae 0.35	Nocardioides 0.15
     WP_008361013.1	COG0186	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008363230.1	COG0195	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008361017.1	COG0198	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-    WP_008361031.1	COG0201	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008361030.1	COG0200	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008361063.1	COG0203	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008363328.1	COG0228	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008362879.1	COG0244	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
     WP_008361025.1	COG0256	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
-
+    WP_040755263.1	COG0261	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008363690.1	COG0268	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008359372.1	COG0292	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
+    WP_008363321.1	COG0335	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00	Nocardioides 0.50
+    WP_008355442.1	COG0359	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008355448.1	COG0360	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008358493.1	COG0536	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
+    WP_008358688.1	COG0691	Bacteria 1.00	Actinobacteria 1.00	Actinobacteria 1.00	Propionibacteriales 1.00	Nocardioidaceae 1.00
 
 Setup:
 ------
