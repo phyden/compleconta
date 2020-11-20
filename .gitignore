@@ -1,2 +1,4 @@
 /data/eggnog4/databases/*.fa.*
 /data/eggnog5/databases/*.fa.*
+__pycache__/
+*.py[cod]
